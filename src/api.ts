@@ -77,3 +77,18 @@ export type Voice = {
 }
 
 export type VoiceCatalog = { voices: Voice[]; next_cursor: string | null }
+
+const hindiVoiceNames: Record<string, string> = {
+  'hindi-natural-male': 'Omega · Hindi Natural Male',
+  'hindi-natural-male-psi': 'Psi · Hindi Natural Male',
+  'hindi-natural-female': 'Alpha · Hindi Natural Female',
+  'Hindi · Natural Male': 'Omega · Hindi Natural Male',
+  'Hindi · Natural Male (Psi)': 'Psi · Hindi Natural Male',
+  'Hindi · Natural Female': 'Alpha · Hindi Natural Female',
+}
+
+export function voiceName(voice: Pick<Voice, 'id' | 'name'> | string): string {
+  return typeof voice === 'string'
+    ? hindiVoiceNames[voice] || voice
+    : hindiVoiceNames[voice.id] || voice.name
+}

@@ -1,3 +1,4 @@
+import { voiceName } from './api'
 import type { Scene, Speaker, Speed } from './api'
 
 export function splitStory(script: string, speed: Speed): Scene[] {
@@ -36,7 +37,7 @@ export function splitStory(script: string, speed: Speed): Scene[] {
 
 export const speakerOptions: readonly [Speaker, string][] = [
   ['narrator', 'Narrator (selected voice)'],
-  ['hindi-natural-female', 'Character · Hindi Female'],
-  ['hindi-natural-male', 'Character · Hindi Male (Omega)'],
-  ['hindi-natural-male-psi', 'Character · Hindi Male (Psi)'],
+  ['hindi-natural-female', voiceName({ id: 'hindi-natural-female', name: 'Character · Hindi Female' })],
+  ['hindi-natural-male', voiceName({ id: 'hindi-natural-male', name: 'Character · Hindi Male (Omega)' })],
+  ['hindi-natural-male-psi', voiceName({ id: 'hindi-natural-male-psi', name: 'Character · Hindi Male (Psi)' })],
 ]

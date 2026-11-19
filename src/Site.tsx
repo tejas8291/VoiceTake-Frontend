@@ -52,7 +52,7 @@ export function SiteFrame({ path, navigate, children }: {
   return (
     <>
       <a className="skip-link" href="#content">Skip to content</a>
-      <header className="masthead">
+      <header className={path === '/' ? 'masthead' : 'masthead workspace-header'}>
         <div className="masthead-inner">
           <a href="/" className="identity" onClick={event => goTo('/', event)}>
             <span className="logo"><AudioLines size={21} aria-hidden="true" /></span> VoiceTake
@@ -76,8 +76,8 @@ export function SiteFrame({ path, navigate, children }: {
           </nav>
         </div>
       </header>
-      <main id="content">{children}</main>
-      <footer className="site-footer">
+      <main id="content" className={path === '/' ? 'home-page' : path === '/studio' ? 'studio-page' : undefined}>{children}</main>
+      {path === '/' && <footer className="site-footer">
         <div className="site-footer-inner">
           <div className="footer-brand">
             <a href="/" className="identity" onClick={event => goTo('/', event)}>
@@ -96,7 +96,7 @@ export function SiteFrame({ path, navigate, children }: {
             <a href="/help" onClick={event => goTo('/help', event)}>Help center</a>
           </nav>
         </div>
-      </footer>
+      </footer>}
     </>
   )
 }
@@ -104,18 +104,20 @@ export function SiteFrame({ path, navigate, children }: {
 export function Home({ navigate }: { navigate: Navigate }) {
   return (
     <>
-      <section className="landing-hero">
-        <div>
-          <h1 id="page-title" tabIndex={-1}>Create voiceovers<br />for your videos.</h1>
-          <p>Write a script, pick a narrator or use your own voice, then export audio and captions for your next video.</p>
-          <div className="actions">
-            <a className="site-cta" href="/studio" onClick={event => navigate('/studio', event)}>
-              Create a voiceover <ArrowRight size={17} aria-hidden="true" />
-            </a>
-            <a className="text-link" href="/voices" onClick={event => navigate('/voices', event)}>Explore voices</a>
+      <section className="home-voice-hero" aria-labelledby="page-title">
+        <div className="home-hero-art" aria-hidden="true" />
+        <div className="home-hero-inner">
+          <div className="home-hero-copy">
+            <h1 id="page-title" tabIndex={-1}>Give your script a voice.</h1>
+            <p>Har kahani ke liye ek awaaz.</p>
+            <div className="home-hero-actions">
+              <a className="home-hero-cta" href="/studio" onClick={event => navigate('/studio', event)}>
+                Create a voiceover <ArrowRight size={17} aria-hidden="true" />
+              </a>
+              <a className="home-hero-link" href="/voices" onClick={event => navigate('/voices', event)}>Explore voices</a>
+            </div>
           </div>
         </div>
-        <div className="landing-image" aria-hidden="true" />
       </section>
       <section className="landing-features" aria-labelledby="features-title">
         <h2 id="features-title">Built for your next edit</h2>
