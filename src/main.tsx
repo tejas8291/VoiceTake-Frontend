@@ -12,6 +12,7 @@ import { VoiceProfile } from './VoiceProfile'
 import { speakerOptions, splitStory } from './storySegments'
 import { VoicePicker } from './VoicePicker'
 import { PauseField } from './PauseField'
+import { PronunciationEditor } from './PronunciationEditor'
 import { StudioPlayer } from './StudioPlayer'
 import { RenderActivity } from './RenderActivity'
 import { api, asset, detectLanguage, json, styles, voiceName, waitForTake } from './api'
@@ -76,7 +77,8 @@ function Studio() {
   }, [segmentPreview])
   const [activeLine, setActiveLine] = useState(0)
   useEffect(() => setActiveLine(0), [project.id])
-  const [scriptPreset, setScriptPreset] = useState<Scene['style']>('auto')
+  const scriptPreset = project.deliveryPreset ?? 'auto'
+  const setScriptPreset = (deliveryPreset: Scene['style']) => updateProject({ deliveryPreset })
   const scriptSpeed = scenes[0]?.speed ?? 'normal'
   const characters = scenes.reduce((sum, scene) => sum + scene.text.trim().length, 0)
   const invalid = characters > 1600 || scenes.some(scene => !scene.text.trim())
@@ -126,7 +128,6 @@ function Studio() {
     setError('')
     setPasteOpen(false)
     setPastedScript('')
-    setScriptPreset('auto')
   }
 
   function createProject(name: string) {
@@ -554,31 +555,15 @@ function Studio() {
                   <option value="shared">All projects</option>
                 </select>
               </label>
-              <form onSubmit={event => {
-                event.preventDefault()
-                const form = event.currentTarget
-                const data = new FormData(form)
-                void perform('Saving pronunciation', async () => {
-                  setAliases(await api(dictionaryUrl, json('PUT', {
-                    written: data.get('written'), spoken: data.get('spoken'),
-                  })))
-                  form.reset()
-                })
-              }}>
-                <label>Written word <input name="written" required maxLength={100} placeholder="Nguyen" /></label>
-                <label>Say it as <input name="spoken" required maxLength={100} placeholder="Nwin" /></label>
-                <button disabled={Boolean(busy)}>Save pronunciation</button>
-              </form>
-              {Object.entries(aliases).map(([written, spoken]) => (
-                <div className="alias" key={written}>
-                  <span>{written} → {spoken}</span>
-                  <button disabled={Boolean(busy)} aria-label={`Remove pronunciation for ${written}`} onClick={() => {
-                    void perform('Removing pronunciation', async () => {
-                      setAliases(await api(dictionaryUrl + '&written=' + encodeURIComponent(written), { method: 'DELETE' }))
-                    })
-                  }}>Remove</button>
-                </div>
-              ))}
+              <PronunciationEditor key={dictionaryUrl} aliases={aliases} disabled={Boolean(busy)}
+                localPreview={status?.provider === 'demo'} scene={scenes[activeLine]}
+                language={language} voiceId={narratorVoice?.id} projectId={project.id} run={perform}
+                save={async (written, spoken) => {
+                  setAliases(await api(dictionaryUrl, json('PUT', { written, spoken })))
+                }}
+                remove={async written => {
+                  setAliases(await api(dictionaryUrl + '&written=' + encodeURIComponent(written), { method: 'DELETE' }))
+                }} />
             </details>
             <a className="studio-own-voice" href="/voices" onClick={event => { setVoiceTab('mine'); navigate('/voices', event) }}>Use your own voice</a>
           </aside>

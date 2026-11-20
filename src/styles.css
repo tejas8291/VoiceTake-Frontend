@@ -816,3 +816,11 @@ html { scroll-padding-bottom: calc(var(--studio-player-height, 120px) + 1rem); }
   .home-page .feature-grid h2, .home-page .feature-grid p { margin-left: 3.5rem; }
   .home-page .landing-workflow { gap: .75rem; }
 }
+
+.pronunciation-editor form { margin-top: .85rem; }
+.pronunciation-editor .help { margin: .1rem 0 .35rem; }
+.pronunciation-editor .alias { gap: .6rem; align-items: center; flex-wrap: wrap; }
+.pronunciation-editor .alias > span { min-width: 0; overflow-wrap: anywhere; line-height: 1.7; }
+.pronunciation-editor .actions { gap: .4rem; }
+.pronunciation-editor .actions button { font-size: .78rem; }
+.pronunciation-editor input:disabled { opacity: .8; }

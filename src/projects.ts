@@ -11,6 +11,7 @@ export type Project = {
   voice?: Voice
   keepTiming: boolean
   segmentGapMs?: number
+  deliveryPreset?: Scene['style']
   takeIds: string[]
   updatedAt: string
   importDraft?: boolean
