@@ -154,7 +154,7 @@ export function Help({ navigate }: { navigate: Navigate }) {
     },
     {
       question: 'Can I mix Hindi and English in one script?',
-      answer: 'Yes. Choose Hinglish in the Studio. In the offline demo, write Hindi words in देवनागरी and English words in Latin script.',
+      answer: 'Yes. Choose Hinglish in the Studio. With local voices, write Hindi words in देवनागरी and English words in Latin script.',
     },
     {
       question: 'Can I fix one line after generating?',

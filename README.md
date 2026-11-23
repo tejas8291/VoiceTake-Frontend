@@ -33,10 +33,28 @@ package.json     Frontend dependencies and commands
 
 ```sh
 npm run check
+npm run test:script
 npm run build
 ```
 
-GitHub Actions runs the production build, including TypeScript checks.
+GitHub Actions runs script-import checks and the production build, including TypeScript checks.
+
+## Script import and local voices
+
+The Studio label is Local voice engine when the backend uses local synthesis.
+Kokoro remains the Hindi engine when its assets are installed; this label does
+not change providers or narration settings.
+
+Paste a script to see its spoken character count and proposed line count before
+replacing the current draft. Long paragraphs split at sentence or whitespace
+boundaries, preserving narration/dialogue order. Hindi words are not cut apart.
+An oversized word is kept intact and reported for manual correction.
+
+The current API accepts up to 1600 spoken characters, 24 lines, and 500 characters
+per line. Over-limit imports are blocked with specific errors. Pasted input is
+not silently truncated. The existing draft is preserved until a valid import is
+confirmed. The paste field itself is temporary; import valid text to save it as
+a project draft, or keep a separate copy before reloading or leaving the page.
 
 ## Security and local data
 

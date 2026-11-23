@@ -9,7 +9,7 @@ import { ProjectLibrary } from './ProjectLibrary'
 import { loadProjects, newProject, saveProjects } from './projects'
 import type { Project } from './projects'
 import { VoiceProfile } from './VoiceProfile'
-import { speakerOptions, splitStory } from './storySegments'
+import { characterCount, scriptIssues, scriptLimits, speakerOptions, splitStory } from './storySegments'
 import { VoicePicker } from './VoicePicker'
 import { PauseField } from './PauseField'
 import { PronunciationEditor } from './PronunciationEditor'
@@ -80,8 +80,12 @@ function Studio() {
   const scriptPreset = project.deliveryPreset ?? 'auto'
   const setScriptPreset = (deliveryPreset: Scene['style']) => updateProject({ deliveryPreset })
   const scriptSpeed = scenes[0]?.speed ?? 'normal'
-  const characters = scenes.reduce((sum, scene) => sum + scene.text.trim().length, 0)
-  const invalid = characters > 1600 || scenes.some(scene => !scene.text.trim())
+  const characters = scenes.reduce((sum, scene) => sum + characterCount(scene.text.trim()), 0)
+  const issues = scriptIssues(scenes)
+  const invalid = issues.length > 0
+  const importedScenes = splitStory(pastedScript, scriptSpeed)
+  const importIssues = scriptIssues(importedScenes)
+  const importCharacters = importedScenes.reduce((sum, scene) => sum + characterCount(scene.text.trim()), 0)
   const script = scenes.map(scene => scene.text).join(' ')
   const detectedLanguage = detectLanguage(script)
   const resolvedLanguage = language === 'auto' ? detectedLanguage : language
@@ -244,13 +248,11 @@ function Studio() {
     || (scene.gain_db ?? 0) !== (take?.scenes[index]?.gain_db ?? 0))
 
   function importScript() {
-    const segments = splitStory(pastedScript, scriptSpeed)
-    if (!segments.length || segments.length > 24 || segments.some(scene => scene.text.length > 500)
-      || segments.reduce((size, scene) => size + scene.text.length, 0) > 1600) {
-      setError('Use 1–24 segments, up to 500 characters per segment and 1600 total.')
+    if (importIssues.length) {
+      setError(importIssues.join(' '))
       return
     }
-    setScenes(segments)
+    setScenes(importedScenes)
     setActiveLine(0)
     setPasteOpen(false)
     setPastedScript('')
@@ -308,7 +310,7 @@ function Studio() {
               </div> : <h1 id="page-title" tabIndex={-1}>Voice library</h1>}
               <p>{path === '/studio' ? 'Write, direct, and export your voiceover.' : 'Listen to narrators or add your own voice.'}</p>
             </div>
-            <span className="engine"><i aria-hidden="true" />{status?.provider === 'elevenlabs' ? 'ElevenLabs connected' : 'Offline demo'}</span>
+            <span className="engine"><i aria-hidden="true" />{status?.provider === 'elevenlabs' ? 'ElevenLabs connected' : status ? 'Local voice engine' : 'Connecting voice engine…'}</span>
           </div>
         )}
         {storageError && <p role="alert" className="notice error">{storageError}</p>}
@@ -357,7 +359,7 @@ function Studio() {
             <div className="script-editor-header">
             <div className="row">
               <h2 id="script"><FileText size={19} aria-hidden="true" /> Script</h2>
-              <span>{characters} / 1600 characters</span>
+              <span>{characters} / {scriptLimits.characters} characters · {scenes.length} / {scriptLimits.lines} lines</span>
             </div>
               <button type="button" aria-expanded={pasteOpen} disabled={Boolean(busy)}
                 onClick={() => setPasteOpen(!pasteOpen)}><ClipboardPaste size={16} aria-hidden="true" /> Paste a script</button>
@@ -370,10 +372,15 @@ function Studio() {
                 event.preventDefault()
                 importScript()
               }}>
-                <label>Script <textarea rows={5} maxLength={1624} required
+                <label>Script <textarea rows={5} required aria-describedby="script-import-limits"
                   placeholder="Paste your script. Quoted speech and lines marked Dialogue: or संवाद: become separate segments."
                   value={pastedScript} onChange={event => setPastedScript(event.target.value)} /></label>
-                <button type="submit" disabled={Boolean(busy)}>Use this script</button>
+                <div id="script-import-limits" className="script-import-limits">
+                  <p>{importCharacters} / {scriptLimits.characters} spoken characters · {importedScenes.length} / {scriptLimits.lines} lines</p>
+                  <p className="help">Long paragraphs split at sentence or word breaks, up to 500 characters per line. Your current draft is replaced only when you choose Use this script.</p>
+                  {pastedScript.trim() && importIssues.length > 0 && <ul role="status">{importIssues.map(issue => <li key={issue}>{issue}</li>)}</ul>}
+                </div>
+                <button type="submit" disabled={Boolean(busy) || importIssues.length > 0}>Use this script</button>
               </form>
             )}
             <div className="script-lines" key={project.id}>
@@ -399,8 +406,9 @@ function Studio() {
                       </select>
                     </label>}
                 </div>
-                <textarea aria-label={`Script line ${index + 1}`} rows={2} maxLength={500}
+                <textarea aria-label={`Script line ${index + 1}`} rows={2}
                   value={scene.text} onChange={event => updateScene(index, { text: event.target.value.replace(/[\r\n]+/g, ' ') })} />
+                <p className="help">{characterCount(scene.text.trim())} / {scriptLimits.lineCharacters} characters in this line</p>
                 <div className="actions line-basic-actions">
                     {status?.provider === 'demo' && <button type="button" disabled={invalid || !canGenerate
                       || !selectedVoiceSupportsLanguage || (hasCharacterLines && !canUseCharacters)}
@@ -461,7 +469,7 @@ function Studio() {
             </div>
             <div className="editor-generate-bar">
             <div className="actions">
-              <button disabled={Boolean(busy) || scenes.length >= 24}
+              <button disabled={Boolean(busy) || scenes.length >= scriptLimits.lines}
                 onClick={() => {
                   setActiveLine(scenes.length)
                   setScenes([...scenes, { text: '', style: 'auto', speed: scriptSpeed }])
@@ -474,9 +482,7 @@ function Studio() {
               </button>
             </div>
             {hasCharacterLines && !canUseCharacters && <p className="help">Switch to Hindi or Hinglish with local Kokoro, or set all speakers back to Narrator.</p>}
-            {invalid && <p className="help" role="status">{characters > 1600
-              ? 'Use up to 1600 characters per narration.'
-              : `Line ${scenes.findIndex(scene => !scene.text.trim()) + 1} is empty. Add text before generating.`}</p>}
+            {invalid && <ul className="script-limit-errors" role="status">{issues.map(issue => <li key={issue}>{issue}</li>)}</ul>}
             {renderingNarration && (
               <p className="generation-status" role="status">
                 {narratorVoice ? `Creating a new take with ${voiceName(narratorVoice)}.` : 'Creating your new take.'}

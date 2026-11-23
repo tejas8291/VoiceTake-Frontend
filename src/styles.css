@@ -824,3 +824,8 @@ html { scroll-padding-bottom: calc(var(--studio-player-height, 120px) + 1rem); }
 .pronunciation-editor .actions { gap: .4rem; }
 .pronunciation-editor .actions button { font-size: .78rem; }
 .pronunciation-editor input:disabled { opacity: .8; }
+
+.script-import-limits p { margin: .25rem 0; font-size: .85rem; }
+.script-import-limits ul, .script-limit-errors { padding-left: 1.2rem; color: #8a3d29; font-size: .85rem; line-height: 1.65; }
+.script-import-limits li, .script-limit-errors li { overflow-wrap: anywhere; }
+.script-editor-header .row span { white-space: normal; }
