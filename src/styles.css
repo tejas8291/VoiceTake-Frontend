@@ -829,3 +829,22 @@ html { scroll-padding-bottom: calc(var(--studio-player-height, 120px) + 1rem); }
 .script-import-limits ul, .script-limit-errors { padding-left: 1.2rem; color: #8a3d29; font-size: .85rem; line-height: 1.65; }
 .script-import-limits li, .script-limit-errors li { overflow-wrap: anywhere; }
 .script-editor-header .row span { white-space: normal; }
+
+.playback-activity { display: flex; align-items: center; gap: .45rem; min-height: 20px; color: var(--muted); }
+.playback-state { font-size: .7rem; line-height: 1.4; }
+.playback-bars { display: flex; align-items: center; gap: 3px; height: 18px; width: 27px; flex: none; }
+.playback-bars i { width: 3px; height: 14px; border-radius: 3px; background: #52765b; transform: scaleY(.25); transform-origin: center; }
+.playback-bars i:nth-child(2), .playback-bars i:nth-child(4) { height: 18px; }
+.playback-bars i:nth-child(3) { height: 11px; }
+[data-playback="playing"] .playback-bars i { animation: playback-pulse .85s ease-in-out infinite alternate; }
+[data-playback="playing"] .playback-bars i:nth-child(2) { animation-delay: -.45s; }
+[data-playback="playing"] .playback-bars i:nth-child(3) { animation-delay: -.2s; }
+[data-playback="playing"] .playback-bars i:nth-child(4) { animation-delay: -.65s; }
+[data-playback="playing"] .playback-bars i:nth-child(5) { animation-delay: -.3s; }
+[data-playback="playing"] .playback-state { color: #335540; font-weight: 650; }
+[data-playback="error"] .playback-state { color: #8a3d29; }
+.take-comparison .playback-audio { min-width: 0; }
+@keyframes playback-pulse { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  [data-playback="playing"] .playback-bars i { animation: none; transform: scaleY(.65); }
+}

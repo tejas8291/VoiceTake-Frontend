@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Captions, Download, Headphones, History } from 'lucide-react'
 import { asset, languageNames, voiceName } from './api'
 import type { Take } from './api'
+import { PlaybackAudio } from './PlaybackAudio'
 
 type Props = {
   take?: Take
@@ -53,7 +54,7 @@ export function StudioPlayer({ take, previous, takeId, takeIds, disabled, onSele
             {take.voice_name && <span className="dock-voice">{voiceName(take.voice_name)}
               {take.scenes.some(scene => scene.speaker && scene.speaker !== 'narrator') ? ' + character voices' : ''}
             </span>}
-            <audio key={take.id} ref={currentAudio} aria-label="Selected take playback" controls preload="metadata"
+            <PlaybackAudio key={take.id} audioRef={currentAudio} label="Selected take playback"
               onPlay={() => previousAudio.current?.pause()} src={asset(take, 'narration.wav')} />
           </div>
           <div className="dock-actions">
@@ -74,7 +75,7 @@ export function StudioPlayer({ take, previous, takeId, takeIds, disabled, onSele
         </> : <p className="dock-empty" role="status">{takeId ? 'Loading saved take…' : 'Generate narration to listen and export.'}</p>}
         {compare && previous && <div id="previous-take-comparison" className="take-comparison">
           <div><strong>Previous take</strong><small>{previous.voice_name && voiceName(previous.voice_name)} · {previous.duration?.toFixed(1)} s</small></div>
-          <audio key={previous.id} ref={previousAudio} aria-label="Previous take playback" controls preload="metadata"
+          <PlaybackAudio key={previous.id} audioRef={previousAudio} label="Previous take playback"
             onPlay={() => currentAudio.current?.pause()} src={asset(previous, 'narration.wav')} />
         </div>}
       </div>

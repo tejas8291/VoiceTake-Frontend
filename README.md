@@ -41,6 +41,12 @@ GitHub Actions runs script-import checks and the production build, including Typ
 
 ## Script import and local voices
 
+The bottom player shows playback activity for both the selected take and previous
+take comparison. Sound bars animate only during playback and stop on pause/end;
+buffering and errors have separate labels. These bars indicate playback, not
+measured loudness. Reduced-motion preferences disable the animation. Native
+audio controls and WAV/MP3/SRT exports remain available.
+
 The Studio label is Local voice engine when the backend uses local synthesis.
 Kokoro remains the Hindi engine when its assets are installed; this label does
 not change providers or narration settings.
