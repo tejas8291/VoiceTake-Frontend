@@ -881,3 +881,29 @@ html { scroll-padding-bottom: calc(var(--studio-player-height, 120px) + 1rem); }
   .home-ambient-waves g, .home-hero-art::before,
   .home-hero-copy > h1, .home-hero-copy > p, .home-hero-actions { animation: none; }
 }
+
+/* Studio feedback: real progress stages and placeholders while voices arrive. */
+.generation-progress-heading > div { min-width: 0; flex: 1; }
+.generation-count { flex-shrink: 0; color: #244333; font-size: 1.1rem; font-weight: 750; font-variant-numeric: tabular-nums; }
+.generation-count > span { color: #647361; font-weight: 500; font-size: .8rem; }
+.generation-steps { display: flex; flex-wrap: wrap; gap: .65rem 1rem; padding: 0; margin: 1rem 0 .25rem; list-style: none; }
+.generation-steps li { display: flex; align-items: center; gap: .4rem; font-size: .76rem; color: #667260; line-height: 1.5; }
+.generation-steps li > span { display: inline-grid; place-items: center; width: 1.35rem; height: 1.35rem; border: 1px solid #c9d7c3; border-radius: 50%; font-size: .7rem; }
+.generation-steps li[data-state="active"] { color: #244333; font-weight: 700; }
+.generation-steps li[data-state="active"] > span { border-color: #335540; box-shadow: 0 0 0 3px #33554012; }
+.generation-steps li[data-state="done"] > span { background: #335540; border-color: #335540; color: #fff; }
+.generation-progress > progress::-webkit-progress-value { transition: width .25s ease; }
+.voice-loading { margin: .8rem 0; }
+.voice-loading-label { display: block; font-size: .83rem; color: var(--muted); margin-bottom: .7rem; }
+.voice-skeleton-grid { display: grid; gap: .65rem; }
+.voice-skeleton { display: flex; align-items: center; gap: .7rem; min-height: 72px; padding: .8rem; border: 1px solid var(--border); border-radius: .65rem; background: #fafbf8; }
+.skeleton-avatar, .skeleton-copy i { display: block; background: #e5ebe2; animation: voice-placeholder 1.7s ease-in-out infinite; }
+.skeleton-avatar { width: 2.2rem; height: 2.2rem; border-radius: 50%; flex-shrink: 0; }
+.skeleton-copy { display: grid; gap: .5rem; width: 70%; }
+.skeleton-copy i { height: .65rem; border-radius: 1rem; }
+.skeleton-copy i:last-child { width: 65%; animation-delay: .15s; }
+@keyframes voice-placeholder { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-avatar, .skeleton-copy i { animation: none; }
+  .generation-progress > progress::-webkit-progress-value { transition: none; }
+}
