@@ -41,6 +41,11 @@ GitHub Actions runs script-import checks and the production build, including Typ
 
 ## Script import and local voices
 
+During generation, the Studio displays backend-reported completed-line counts,
+the current line, and the audio/subtitle assembly stage. This is work progress,
+not a time estimate. Retakes count only the regenerated line, while other lines
+are reused. Older APIs without progress metadata retain a generic loading label.
+
 The bottom player shows playback activity for both the selected take and previous
 take comparison. Sound bars animate only during playback and stop on pause/end;
 buffering and errors have separate labels. These bars indicate playback, not

@@ -15,6 +15,7 @@ import { PauseField } from './PauseField'
 import { PronunciationEditor } from './PronunciationEditor'
 import { StudioPlayer } from './StudioPlayer'
 import { RenderActivity } from './RenderActivity'
+import { GenerationProgress } from './GenerationProgress'
 import { api, asset, detectLanguage, json, styles, voiceName, waitForTake } from './api'
 import type { Pronunciations, Scene, Speed, Speaker, StudioStatus, Take, Voice } from './api'
 import './styles.css'
@@ -66,6 +67,8 @@ function Studio() {
   const [storageError, setStorageError] = useState('')
   const [busy, setBusy] = useState('')
   const renderingNarration = busy === 'Rendering narration'
+  const renderingTake = renderingNarration || busy === 'Rendering line'
+  const [generationProgress, setGenerationProgress] = useState<Take>()
   const [error, setError] = useState('')
   const [renaming, setRenaming] = useState(false)
   const [voiceTab, setVoiceTab] = useState<'browse' | 'mine'>('browse')
@@ -224,15 +227,18 @@ function Studio() {
     const line = index === undefined ? undefined : scenes[index]
     const isRetake = index !== undefined && Boolean(take)
     void perform(isRetake ? 'Rendering line' : 'Rendering narration', async () => {
-      const initial = isRetake
-        ? await api<Take>(`/takes/${take?.id}/retakes`, json('POST', {
-          index, scene: line, keep_timing: keepTiming,
-        }))
-        : await api<Take>('/takes', json('POST', { scenes, voice_id: narratorVoice?.id, language, project_id: project.id, segment_gap_ms: segmentGapMs }))
-      const result = await waitForTake(initial)
-      setTakeCache(current => ({ ...current, [result.id]: result }))
-      updateProject({ takeIds: [...project.takeIds, result.id] })
-      setViewTakeId(undefined)
+      setGenerationProgress(undefined)
+      try {
+        const initial = isRetake
+          ? await api<Take>(`/takes/${take?.id}/retakes`, json('POST', {
+            index, scene: line, keep_timing: keepTiming,
+          }))
+          : await api<Take>('/takes', json('POST', { scenes, voice_id: narratorVoice?.id, language, project_id: project.id, segment_gap_ms: segmentGapMs }))
+        const result = await waitForTake(initial, setGenerationProgress)
+        setTakeCache(current => ({ ...current, [result.id]: result }))
+        updateProject({ takeIds: [...project.takeIds, result.id] })
+        setViewTakeId(undefined)
+      } finally { setGenerationProgress(undefined) }
     })
   }
 
@@ -314,7 +320,7 @@ function Studio() {
           </div>
         )}
         {storageError && <p role="alert" className="notice error">{storageError}</p>}
-        {((busy && !renderingNarration) || error) && (
+        {((busy && !renderingTake) || error) && (
           <div className={error ? 'notice error' : 'notice'} role={error ? 'alert' : 'status'}>
             {busy.startsWith('Rendering') && <RenderActivity />}{error || busy + '…'}
           </div>
@@ -483,12 +489,7 @@ function Studio() {
             </div>
             {hasCharacterLines && !canUseCharacters && <p className="help">Switch to Hindi or Hinglish with local Kokoro, or set all speakers back to Narrator.</p>}
             {invalid && <ul className="script-limit-errors" role="status">{issues.map(issue => <li key={issue}>{issue}</li>)}</ul>}
-            {renderingNarration && (
-              <p className="generation-status" role="status">
-                {narratorVoice ? `Creating a new take with ${voiceName(narratorVoice)}.` : 'Creating your new take.'}
-                {' '}It will appear under Takes when ready.
-              </p>
-            )}
+            {renderingTake && <GenerationProgress take={generationProgress} retaking={!renderingNarration} />}
             </div>
             {sceneLayoutMatches && changedLines.filter(Boolean).length > 1 && (
               <p className="help">Generate a new take to apply edits to several lines.</p>

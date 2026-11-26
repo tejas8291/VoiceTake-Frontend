@@ -28,6 +28,13 @@ export type Take = {
   segment_gap_ms?: number | null
   duration?: number
   error?: string
+  progress?: {
+    stage: 'queued' | 'generating' | 'assembling' | 'complete' | 'failed'
+    completed: number
+    total: number
+    current_line: number | null
+    operation: 'narration' | 'retake'
+  }
 }
 export type StudioStatus = {
   provider: 'demo' | 'elevenlabs'
@@ -56,11 +63,13 @@ export function asset(take: Take, file: 'narration.wav' | 'narration.mp3' | 'cap
   return `/api/takes/${take.id}/files/${file}${download ? '?download=true' : ''}`
 }
 
-export async function waitForTake(initial: Take) {
+export async function waitForTake(initial: Take, onProgress?: (take: Take) => void) {
   let take = initial
+  onProgress?.(take)
   while (take.status === 'queued' || take.status === 'running') {
     await new Promise(resolve => window.setTimeout(resolve, 750))
     take = await api<Take>('/takes/' + take.id)
+    onProgress?.(take)
   }
   if (take.status === 'failed') throw new Error(take.error || 'Generation failed.')
   return take
