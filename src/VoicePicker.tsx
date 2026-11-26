@@ -53,6 +53,7 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
     if (!engine) return
     const controller = new AbortController()
     setLoading(true)
+    setError('')
     api<VoiceCatalog>('/voices', { signal: controller.signal })
       .then(setCatalog)
       .catch(failure => {
@@ -161,6 +162,14 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
           stopPreview()
           setExpanded(value => !value)
         }}>{expanded ? 'Close voice selection' : 'Change voice'}</button>
+      </div>}
+      {loading && <div className="voice-loading" role="status" aria-live="polite">
+        <span className="voice-loading-label">{catalog ? 'Updating voices…' : 'Loading your voices…'}</span>
+        {!catalog && <div className="voice-skeleton-grid" aria-hidden="true">
+          {[0, 1, 2].map(index => <div className="voice-skeleton" key={index}>
+            <span className="skeleton-avatar" /><span className="skeleton-copy"><i /><i /></span>
+          </div>)}
+        </div>}
       </div>}
       <div hidden={compact && !expanded}>
       {comparison.every(Boolean) && (
@@ -286,7 +295,6 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
             setPreviewId(undefined)
           }
         }} />
-      {loading && <p role="status">Loading voices…</p>}
       {previewError && <p role="alert" className="voice-error">{previewError}</p>}
       {catalog?.next_cursor && (
         <button type="button" disabled={disabled || loading} onClick={() => void load(activeSearch, true)}>
