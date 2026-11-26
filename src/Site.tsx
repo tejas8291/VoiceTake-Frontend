@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { MouseEvent, ReactNode } from 'react'
-import { ArrowRight, AudioLines, Captions, ChevronDown, Menu, Mic2, RotateCcw, X } from 'lucide-react'
+import { ArrowRight, AudioLines, Captions, ChevronDown, Menu, Mic2, Pause, Play, RotateCcw, X } from 'lucide-react'
 
 const pages = [
   ['/', 'Home'],
@@ -102,10 +102,16 @@ export function SiteFrame({ path, navigate, children }: {
 }
 
 export function Home({ navigate }: { navigate: Navigate }) {
+  const [motionPaused, setMotionPaused] = useState(false)
   return (
     <>
-      <section className="home-voice-hero" aria-labelledby="page-title">
+      <section className="home-voice-hero" aria-labelledby="page-title" data-motion={motionPaused ? 'paused' : 'running'}>
         <div className="home-hero-art" aria-hidden="true" />
+        <svg className="home-ambient-waves" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <g className="home-wave-mint"><path d="M-40 250 C130 250 160 105 310 155 S510 330 670 225 S870 90 1040 190" /></g>
+          <g className="home-wave-gold"><path d="M-40 215 C150 320 260 295 400 205 S620 100 760 170 S900 295 1040 225" /></g>
+          <g className="home-wave-fine"><path d="M-40 235 C110 180 210 290 360 235 S570 145 730 225 S920 260 1040 200" /></g>
+        </svg>
         <div className="home-hero-inner">
           <div className="home-hero-copy">
             <h1 id="page-title" tabIndex={-1}>Give your script a voice.</h1>
@@ -118,6 +124,11 @@ export function Home({ navigate }: { navigate: Navigate }) {
             </div>
           </div>
         </div>
+        <button type="button" className="home-motion-toggle" aria-pressed={motionPaused}
+          onClick={() => setMotionPaused(value => !value)}>
+          {motionPaused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}
+          {motionPaused ? 'Resume motion' : 'Pause motion'}
+        </button>
       </section>
       <section className="landing-features" aria-labelledby="features-title">
         <h2 id="features-title">Built for your next edit</h2>
