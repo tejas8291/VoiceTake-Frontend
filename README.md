@@ -17,7 +17,7 @@ npm run dev
 
 Open http://127.0.0.1:5173/studio on the computer running the app.
 
-Start the companion FastAPI backend on 127.0.0.1:8000. Vite forwards relative /api requests to that server. Backend setup is documented in the companion repository.
+Start the companion FastAPI backend on 127.0.0.1:8000. Vite forwards relative /api requests to that server. Backend setup is documented in [VoiceTake-Backend](https://github.com/tejas8291/VoiceTake-Backend).
 
 ## Project structure
 
@@ -75,6 +75,24 @@ Draft scripts and project selections are stored in browser local storage. Stored
 
 ## Branches
 
-Use main for the baseline and develop for ongoing work. Create feature/<description> or fix/<description> branches for subsequent changes.
+Use `main` for the latest tested stable code. Preserve feature/fix branches as checkpoints; start subsequent work from current `main`. Create feature/<description> or fix/<description> branches for subsequent changes.
 
 The companion backend is available in the VoiceTake-Backend repository.
+
+## Ownership and credits
+
+This is a source-visible portfolio project, not an open-source release. No general reuse license is granted for original VoiceTake code. See [COPYRIGHT.md](COPYRIGHT.md) and [third-party notices](THIRD_PARTY_NOTICES.md). GitHub public-repository viewing/forking rights still apply. Repository visibility is managed separately.
+
+Built with AI assistance from Codex: requirements, integration, testing and iteration are part of this project; Kokoro is an existing third-party model.
+
+## Architecture and limits
+
+Browser React/TypeScript → Vite `/api` development proxy → FastAPI → local synthesis/audio processing → SQLite and local audio files. The frontend and backend are separate repositories and processes. Drafts live in this browser; cloning Git does not transfer drafts, takes, model weights or private recordings.
+
+Hindi uses installed Kokoro voices. Pronunciation dictionaries, per-line speed and silence controls help delivery; presets do not provide true emotion prompting. Naturalness and pronunciation still depend on the model and source text. Voice-profile upload does not mean the local Kokoro engine supports voice cloning. The API currently limits scripts to 1,600 spoken characters and 24 lines.
+
+On Windows PowerShell, use the same frontend commands above. Start the backend in a second terminal using its Windows instructions. Node.js/Python must be available in the terminal PATH. A fresh Windows installation and physical iPhone Safari have not yet been verified.
+
+## Release readiness
+
+Dependency credits are documented, but legacy `studio-microphone.jpg` artwork in the frontend still needs provenance verification. Source visibility is not a claim that all assets are cleared for redistribution. Fresh Windows setup and physical iPhone checks remain pending.
