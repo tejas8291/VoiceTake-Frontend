@@ -95,4 +95,4 @@ On Windows PowerShell, use the same frontend commands above. Start the backend i
 
 ## Release readiness
 
-Dependency credits are documented, but legacy `studio-microphone.jpg` artwork in the frontend still needs provenance verification. Source visibility is not a claim that all assets are cleared for redistribution. Fresh Windows setup and physical iPhone checks remain pending.
+The legacy microphone artwork was matched to its original AI-generated project image; see the frontend asset provenance record. Linux and Windows CI cover builds/API regression tests. Physical Windows laptop setup with Kokoro assets and iPhone Safari checks remain pending.
