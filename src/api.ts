@@ -28,6 +28,13 @@ export type Take = {
   segment_gap_ms?: number | null
   duration?: number
   error?: string
+  progress?: {
+    stage: 'queued' | 'generating' | 'assembling' | 'complete' | 'failed'
+    completed: number
+    total: number
+    current_line: number | null
+    operation: 'narration' | 'retake'
+  }
 }
 export type StudioStatus = {
   provider: 'demo' | 'elevenlabs'
@@ -56,11 +63,13 @@ export function asset(take: Take, file: 'narration.wav' | 'narration.mp3' | 'cap
   return `/api/takes/${take.id}/files/${file}${download ? '?download=true' : ''}`
 }
 
-export async function waitForTake(initial: Take) {
+export async function waitForTake(initial: Take, onProgress?: (take: Take) => void) {
   let take = initial
+  onProgress?.(take)
   while (take.status === 'queued' || take.status === 'running') {
     await new Promise(resolve => window.setTimeout(resolve, 750))
     take = await api<Take>('/takes/' + take.id)
+    onProgress?.(take)
   }
   if (take.status === 'failed') throw new Error(take.error || 'Generation failed.')
   return take
@@ -77,3 +86,18 @@ export type Voice = {
 }
 
 export type VoiceCatalog = { voices: Voice[]; next_cursor: string | null }
+
+const hindiVoiceNames: Record<string, string> = {
+  'hindi-natural-male': 'Omega · Hindi Natural Male',
+  'hindi-natural-male-psi': 'Psi · Hindi Natural Male',
+  'hindi-natural-female': 'Alpha · Hindi Natural Female',
+  'Hindi · Natural Male': 'Omega · Hindi Natural Male',
+  'Hindi · Natural Male (Psi)': 'Psi · Hindi Natural Male',
+  'Hindi · Natural Female': 'Alpha · Hindi Natural Female',
+}
+
+export function voiceName(voice: Pick<Voice, 'id' | 'name'> | string): string {
+  return typeof voice === 'string'
+    ? hindiVoiceNames[voice] || voice
+    : hindiVoiceNames[voice.id] || voice.name
+}

@@ -52,7 +52,7 @@ export function SiteFrame({ path, navigate, children }: {
   return (
     <>
       <a className="skip-link" href="#content">Skip to content</a>
-      <header className="masthead">
+      <header className={path === '/' ? 'masthead' : 'masthead workspace-header'}>
         <div className="masthead-inner">
           <a href="/" className="identity" onClick={event => goTo('/', event)}>
             <span className="logo"><AudioLines size={21} aria-hidden="true" /></span> VoiceTake
@@ -76,8 +76,8 @@ export function SiteFrame({ path, navigate, children }: {
           </nav>
         </div>
       </header>
-      <main id="content">{children}</main>
-      <footer className="site-footer">
+      <main id="content" className={path === '/' ? 'home-page' : path === '/studio' ? 'studio-page' : undefined}>{children}</main>
+      {path === '/' && <footer className="site-footer">
         <div className="site-footer-inner">
           <div className="footer-brand">
             <a href="/" className="identity" onClick={event => goTo('/', event)}>
@@ -96,7 +96,7 @@ export function SiteFrame({ path, navigate, children }: {
             <a href="/help" onClick={event => goTo('/help', event)}>Help center</a>
           </nav>
         </div>
-      </footer>
+      </footer>}
     </>
   )
 }
@@ -104,18 +104,29 @@ export function SiteFrame({ path, navigate, children }: {
 export function Home({ navigate }: { navigate: Navigate }) {
   return (
     <>
-      <section className="landing-hero">
-        <div>
-          <h1 id="page-title" tabIndex={-1}>Create voiceovers<br />for your videos.</h1>
-          <p>Write a script, pick a narrator or use your own voice, then export audio and captions for your next video.</p>
-          <div className="actions">
-            <a className="site-cta" href="/studio" onClick={event => navigate('/studio', event)}>
-              Create a voiceover <ArrowRight size={17} aria-hidden="true" />
-            </a>
-            <a className="text-link" href="/voices" onClick={event => navigate('/voices', event)}>Explore voices</a>
+      <section className="home-voice-hero" aria-labelledby="page-title">
+        <div className="home-hero-art" aria-hidden="true" />
+        <svg className="home-ambient-waves" viewBox="0 0 1000 400" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          <g className="home-wave-mint">{Array.from({ length: 9 }, (_, i) =>
+            <path key={i} d={`M-40 235 C120 ${270 - i * 7} 190 ${90 + i * 9} 350 ${180 + i * 3} S570 ${340 - i * 9} 730 ${220 - i * 2} S920 ${150 + i * 6} 1040 230`} />
+          )}</g>
+          <g className="home-wave-gold">{Array.from({ length: 9 }, (_, i) =>
+            <path key={i} d={`M-40 235 C140 ${330 - i * 9} 280 ${310 - i * 5} 440 ${205 + i * 2} S660 ${95 + i * 9} 790 ${190 + i * 3} S960 ${300 - i * 7} 1040 230`} />
+          )}</g>
+          <g className="home-wave-fine"><path d="M-40 235 C110 180 210 290 360 235 S570 145 730 225 S920 260 1040 230" /></g>
+        </svg>
+        <div className="home-hero-inner">
+          <div className="home-hero-copy">
+            <h1 id="page-title" tabIndex={-1}>Give your script a voice.</h1>
+            <p>Har kahani ke liye ek awaaz.</p>
+            <div className="home-hero-actions">
+              <a className="home-hero-cta" href="/studio" onClick={event => navigate('/studio', event)}>
+                Create a voiceover <ArrowRight size={17} aria-hidden="true" />
+              </a>
+              <a className="home-hero-link" href="/voices" onClick={event => navigate('/voices', event)}>Explore voices</a>
+            </div>
           </div>
         </div>
-        <div className="landing-image" aria-hidden="true" />
       </section>
       <section className="landing-features" aria-labelledby="features-title">
         <h2 id="features-title">Built for your next edit</h2>
@@ -152,7 +163,7 @@ export function Help({ navigate }: { navigate: Navigate }) {
     },
     {
       question: 'Can I mix Hindi and English in one script?',
-      answer: 'Yes. Choose Hinglish in the Studio. In the offline demo, write Hindi words in देवनागरी and English words in Latin script.',
+      answer: 'Yes. Choose Hinglish in the Studio. With local voices, write Hindi words in देवनागरी and English words in Latin script.',
     },
     {
       question: 'Can I fix one line after generating?',

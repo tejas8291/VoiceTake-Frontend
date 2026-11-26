@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AudioLines, Check, Pause, Play, Search } from 'lucide-react'
-import { api, languageNames } from './api'
+import { api, languageNames, voiceName } from './api'
 import type { Language, LanguageChoice, StudioStatus, Voice, VoiceCatalog } from './api'
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
   selected: Voice | undefined
   onSelect: (voice: Voice | undefined) => void
   disabled: boolean
+  compact?: boolean
 }
 
 const filters = [
@@ -32,7 +33,8 @@ function matchesVoice(voice: Voice, filter: VoiceFilter) {
   return voice.sound === filter
 }
 
-export function VoicePicker({ status, language, resolvedLanguage, hasScript, onLanguageChange, selected, onSelect, disabled }: Props) {
+export function VoicePicker({ status, language, resolvedLanguage, hasScript, onLanguageChange, selected, onSelect, disabled, compact = false }: Props) {
+  const [expanded, setExpanded] = useState(false)
   const [filter, setFilter] = useState<VoiceFilter>('all')
   const [catalog, setCatalog] = useState<VoiceCatalog>()
   const [search, setSearch] = useState('')
@@ -114,7 +116,7 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
     } catch {
       if (previewRequest.current !== request) return
       setPreviewId(undefined)
-      setPreviewError(`Couldn't play ${voice.name}. Try the preview again.`)
+      setPreviewError(`Couldn't play ${voiceName(voice)}. Try the preview again.`)
     }
   }
 
@@ -152,13 +154,22 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
           <p>{engine === 'demo' ? 'Choose a voice type or select a card. Play previews a sample.' : 'Browse and preview voices from your account.'}</p>
         </div>
       </div>
+      {compact && <div className="compact-narrator">
+        <strong>{choice ? voiceName(choice) : 'Choose a voice'}</strong>
+        <span>{language === 'auto' ? 'Auto · ' : ''}{languageNames[resolvedLanguage]}</span>
+        <button type="button" aria-expanded={expanded} onClick={() => {
+          stopPreview()
+          setExpanded(value => !value)
+        }}>{expanded ? 'Close voice selection' : 'Change voice'}</button>
+      </div>}
+      <div hidden={compact && !expanded}>
       {comparison.every(Boolean) && (
         <section className="voice-comparison" aria-label="Hindi male A/B comparison">
           <h4>Hindi male voice comparison</h4>
           <p>Both read the same paragraph in Hindi.</p>
           {comparison.map((voice, index) => voice && (
             <div className="voice-comparison-row" key={voice.id}>
-              <strong>{index === 0 ? 'A · Omega' : 'B · Psi'}</strong>
+              <strong>{voiceName(voice)}</strong>
               <button type="button" onClick={() => void togglePreview(voice, true)} disabled={disabled}
                 aria-label={`${previewId === 'comparison-' + voice.id ? 'Pause' : 'Play'} ${index === 0 ? 'Omega' : 'Psi'} comparison`}>
                 {previewId === 'comparison-' + voice.id ? <Pause size={15} aria-hidden="true" /> : <Play size={15} aria-hidden="true" />}
@@ -207,10 +218,10 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
       {language === 'auto' && hasScript && (
         <p className="voice-help" role="status">{languageNames[resolvedLanguage]} detected</p>
       )}
-      {choice && <p className="voice-help"><strong>Voice for next take:</strong> {choice.name}</p>}
+      {choice && <p className="voice-help"><strong>Voice for next take:</strong> {voiceName(choice)}</p>}
       {showHindiSwitch && (
         <button type="button" disabled={disabled} onClick={() => onSelect(naturalHindi)}>
-          Use Hindi · Natural Male
+          Use {voiceName(naturalHindi)}
         </button>
       )}
       {engine === 'demo' && resolvedLanguage !== 'en' && (
@@ -222,7 +233,7 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
         <p className="voice-help">Account previews may use a different language. New takes use your script language.</p>
       )}
       {choice && !visibleVoices.some(voice => voice.id === choice.id) && (
-        <p className="voice-help">Selected voice: {choice.name}. Choose a card to change it.</p>
+        <p className="voice-help">Selected voice: {voiceName(choice)}. Choose a card to change it.</p>
       )}
       {engine === 'elevenlabs' && (
         <form className="voice-search" onSubmit={event => {
@@ -252,7 +263,7 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
                   onChange={() => onSelect(voice)} disabled={disabled || !supported}
                   aria-labelledby={labelId} aria-describedby={description ? descriptionId : undefined} />
                 <span className="voice-text">
-                  <strong id={labelId}>{voice.name}</strong>
+                  <strong id={labelId}>{voiceName(voice)}</strong>
                   {description && <span id={descriptionId}>{description}</span>}
                 </span>
                 {isSelected && <Check className="voice-check" size={14} aria-hidden="true" />}
@@ -260,7 +271,7 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
               {voice.preview_url && (
                 <button type="button" className={isPreviewing ? 'voice-play is-playing' : 'voice-play'}
                   disabled={disabled || !supported} onClick={() => void togglePreview(voice)}
-                  aria-label={isPreviewing ? `Pause preview of ${voice.name}` : `Preview ${voice.name}`}>
+                  aria-label={isPreviewing ? `Pause preview of ${voiceName(voice)}` : `Preview ${voiceName(voice)}`}>
                   {isPreviewing ? <Pause size={17} aria-hidden="true" /> : <Play size={17} aria-hidden="true" />}
                 </button>
               )}
@@ -284,6 +295,7 @@ export function VoicePicker({ status, language, resolvedLanguage, hasScript, onL
       )}
       {error && <p role="alert" className="voice-error">{error}</p>}
       {catalog && !loading && !visibleVoices.length && !error && <p>No voices match these filters.</p>}
+      </div>
     </section>
   )
 }
