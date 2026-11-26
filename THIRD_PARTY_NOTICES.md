@@ -19,6 +19,6 @@ Lucide's supplied license also includes notices for Feather-derived icons. Inter
 
 - `src/assets/home-forest-microphone-v2.jpg` and the earlier `home-forest-microphone.jpg`: AI-generated Home artwork made for this project. Original generation prompts are retained locally by the author.
 - Home sound-wave ribbons are SVG/CSS in application source. The rendering indicator uses the local `rendering-waveform.json` animation.
-- `src/assets/studio-microphone.jpg`: legacy asset; original provenance and reuse rights have not been established. Do not treat this as a cleared third-party asset or redistribute it as a reusable asset. Resolve its source or replace it with authorized artwork before claiming all visual assets are cleared.
+- `src/assets/studio-microphone.jpg`: AI-generated project artwork, visually matched to its retained original PNG. See [asset provenance](docs/asset-provenance.md) for file hashes and the scope of verification. No third-party stock-image license is claimed.
 
 No ThemeForest template license is claimed. A design reference is not permission to redistribute a template or its assets.
