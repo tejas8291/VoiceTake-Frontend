@@ -915,3 +915,14 @@ html { scroll-padding-bottom: calc(var(--studio-player-height, 120px) + 1rem); }
 .playback-error-help { margin: .25rem 0; font-size: .75rem; line-height: 1.5; color: #8a3d29; overflow-wrap: anywhere; }
 @keyframes playback-loading { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .playback-loader { animation: none; } }
+
+/* Save feedback follows the actual project snapshot written to browser storage. */
+.draft-save-status { display: inline-flex; align-items: center; gap: .35rem; min-width: 0; line-height: 1.5; }
+.draft-save-status svg { flex: none; }
+.draft-save-status[data-save-state="saved"] svg { color: #52765b; }
+.draft-save-status[data-save-state="error"] { color: #8a3d29; }
+.draft-save-status[data-save-state="saving"] svg { animation: playback-loading 1s linear infinite; }
+.draft-save-error { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; }
+.draft-save-error p { flex: 1 1 230px; margin: 0; overflow-wrap: anywhere; }
+.draft-save-error button { flex: none; }
+@media (prefers-reduced-motion: reduce) { .draft-save-status[data-save-state="saving"] svg { animation: none; } }

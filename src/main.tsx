@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ClipboardPaste, Download, FileText, Pencil,
-  Plus, Play, RotateCcw, Trash2 } from 'lucide-react'
+  Plus, Play, RotateCcw, Trash2, Check, LoaderCircle, AlertCircle } from 'lucide-react'
 import '@fontsource-variable/inter/wght.css'
 import '@fontsource-variable/manrope/wght.css'
 import { Help, Home, SiteFrame, useSite } from './Site'
 import { ProjectLibrary } from './ProjectLibrary'
-import { loadProjects, newProject, saveProjects } from './projects'
+import { loadProjects, newProject } from './projects'
 import type { Project } from './projects'
+import { useDraftSave } from './useDraftSave'
 import { VoiceProfile } from './VoiceProfile'
 import { characterCount, scriptIssues, scriptLimits, speakerOptions, splitStory } from './storySegments'
 import { VoicePicker } from './VoicePicker'
@@ -64,7 +65,8 @@ function Studio() {
   const compareId = project.takeIds[project.takeIds.indexOf(takeId || '') - 1]
   const take = takeId ? takeCache[takeId] : undefined
   const previous = compareId ? takeCache[compareId] : undefined
-  const [storageError, setStorageError] = useState('')
+  const draftSave = useDraftSave(projects)
+  const storageError = draftSave.error
   const [busy, setBusy] = useState('')
   const renderingNarration = busy === 'Rendering narration'
   const renderingTake = renderingNarration || busy === 'Rendering line'
@@ -144,15 +146,6 @@ function Studio() {
     resetProjectView()
     navigate('/studio')
   }
-
-  useEffect(() => {
-    try {
-      saveProjects(projects)
-      setStorageError('')
-    } catch {
-      setStorageError('This browser could not save the draft. Keep this tab open or copy your script.')
-    }
-  }, [projects])
 
   useEffect(() => {
     api<StudioStatus>('/status').then(setStatus).catch(error => setError(error.message))
@@ -319,7 +312,10 @@ function Studio() {
             <span className="engine"><i aria-hidden="true" />{status?.provider === 'elevenlabs' ? 'ElevenLabs connected' : status ? 'Local voice engine' : 'Connecting voice engine…'}</span>
           </div>
         )}
-        {storageError && <p role="alert" className="notice error">{storageError}</p>}
+        {storageError && <div role="alert" className="notice error draft-save-error">
+          <p>{storageError}</p>
+          <button type="button" onClick={draftSave.retry}><RotateCcw size={15} aria-hidden="true" /> Retry save</button>
+        </div>}
         {((busy && !renderingTake) || error) && (
           <div className={error ? 'notice error' : 'notice'} role={error ? 'alert' : 'status'}>
             {busy.startsWith('Rendering') && <RenderActivity />}{error || busy + '…'}
@@ -357,7 +353,11 @@ function Studio() {
             </div>
           )}
           <div className="project-toolbar">
-            <span>{storageError ? 'Draft not saved' : 'Draft saved on this browser'}</span>
+            <span className="draft-save-status" data-save-state={draftSave.state} role="status" aria-live="polite" aria-atomic="true">
+              {draftSave.state === 'saving' ? <LoaderCircle size={14} aria-hidden="true" />
+                : draftSave.state === 'error' ? <AlertCircle size={14} aria-hidden="true" /> : <Check size={14} aria-hidden="true" />}
+              {draftSave.state === 'saving' ? 'Saving…' : draftSave.state === 'error' ? 'Latest changes not saved' : 'Saved on this browser'}
+            </span>
             <a href="/projects" onClick={event => navigate('/projects', event)}>All projects</a>
           </div>
           <div className="layout">
