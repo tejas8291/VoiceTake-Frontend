@@ -100,3 +100,7 @@ The legacy microphone artwork was matched to its original AI-generated project i
 ## Playback recovery
 
 The player shows loading feedback from native media events. If a take cannot load, Reload audio retries the same media URL without regenerating narration or changing the draft. Playback stays user initiated. The loading indicator respects reduced-motion preferences. A missing or inaccessible audio file still requires restoring the local file or resolving the API error; reload cannot recreate deleted audio.
+
+## Draft save feedback
+
+The Studio reports Saved on this browser only after the current project snapshot is written successfully to LocalStorage. Saving is immediate after edits, without a debounce or artificial loading delay. A failed write keeps the draft in the editor, shows a warning and provides Retry save. Copy the script before leaving if saving remains unavailable. This is local browser persistence, not cloud sync; clearing browser data removes saved drafts.
