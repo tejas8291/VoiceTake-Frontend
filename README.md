@@ -96,3 +96,7 @@ On Windows PowerShell, use the same frontend commands above. Start the backend i
 ## Release readiness
 
 The legacy microphone artwork was matched to its original AI-generated project image; see the frontend asset provenance record. Linux and Windows CI cover builds/API regression tests. Physical Windows laptop setup with Kokoro assets and iPhone Safari checks remain pending.
+
+## Playback recovery
+
+The player shows loading feedback from native media events. If a take cannot load, Reload audio retries the same media URL without regenerating narration or changing the draft. Playback stays user initiated. The loading indicator respects reduced-motion preferences. A missing or inaccessible audio file still requires restoring the local file or resolving the API error; reload cannot recreate deleted audio.
