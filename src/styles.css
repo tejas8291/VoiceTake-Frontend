@@ -907,3 +907,11 @@ html { scroll-padding-bottom: calc(var(--studio-player-height, 120px) + 1rem); }
   .skeleton-avatar, .skeleton-copy i { animation: none; }
   .generation-progress > progress::-webkit-progress-value { transition: none; }
 }
+
+/* Playback loading and recovery use native media events, not timers. */
+.playback-activity { flex-wrap: wrap; }
+.playback-loader { flex: none; margin-inline: 5px 6px; color: #52765b; animation: playback-loading 1s linear infinite; }
+.playback-retry { display: inline-flex; align-items: center; gap: .3rem; min-height: 30px; padding: .2rem .5rem; font-size: .72rem; margin-left: .25rem; }
+.playback-error-help { margin: .25rem 0; font-size: .75rem; line-height: 1.5; color: #8a3d29; overflow-wrap: anywhere; }
+@keyframes playback-loading { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .playback-loader { animation: none; } }
